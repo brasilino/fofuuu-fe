@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BarChart from '../../charts/BarChart01';
+import { URL, profileId } from './DashboardConfig'
 
 // Import utilities
 import { tailwindConfig } from '../../utils/Utils';
@@ -19,15 +20,14 @@ function DashboardCard02() {
   useEffect(() => {
     async function fetchData() {
         const client = new ApolloClient({
-        uri: 'http://localhost:4000',
+          uri: URL,
         cache: new InMemoryCache()
         });
 
         const result = await client.query({
         query: gql`
             query {
-                getErrorCountByGameByStudent(profileId: "cd465e22-8384-4a88-a7e0-113c27b43f70") {
-                    ProfileId
+                getErrorCountByGame(profileId: "${profileId}", chapter: "activities-alphabet") {
                     ModuleId
                     TotalErrors
                 }
@@ -35,11 +35,11 @@ function DashboardCard02() {
         `
         })
 
-        const { data: { getErrorCountByGameByStudent } } = result
+        const { data: { getErrorCountByGame } } = result
         
-        if(getErrorCountByGameByStudent && getErrorCountByGameByStudent.length > 0) {
-            const totalErrors = getErrorCountByGameByStudent.map(item => item.TotalErrors)
-            const moduleId = getErrorCountByGameByStudent.map(item => item.ModuleId)
+        if(getErrorCountByGame && getErrorCountByGame.length > 0) {
+            const totalErrors = getErrorCountByGame.map(item => item.TotalErrors)
+            const moduleId = getErrorCountByGame.map(item => item.ModuleId)
 
             console.log('totalErrors', totalErrors)
 

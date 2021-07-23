@@ -7,6 +7,54 @@ function FilterButton() {
 
   const trigger = useRef(null);
   const dropdown = useRef(null);
+  const filters = {
+    chapter: [
+      {
+        Description: 'activities-alphabet'
+      },
+      {
+        Description: 'activities-shapes'
+      },
+      {
+        Description: 'activities-animals'
+      }
+    ],
+    pathology: [
+      {
+        Description: 'Down Syndrome'
+      },
+      {
+        Description: 'Dislexia'
+      },
+      {
+        Description: 'Autism'
+      },
+      {
+        Description: 'Cerebral Palsy'
+      },
+      {
+        Description: 'Language Development Disorder'
+      },
+      {
+        Description: 'Apraxia'
+      },
+      {
+        Description: 'Apraxia'
+      },
+      {
+        Description: 'Speech Delay'
+      },
+      {
+        Description: 'Other'
+      },
+      {
+        Description: 'Cleft Lip and Palate'
+      },
+      {
+        Description: 'Hearing Disorder'
+      }
+    ]
+  }
 
   // close on click outside
   useEffect(() => {
@@ -27,6 +75,58 @@ function FilterButton() {
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
+
+  const handleChange = (e, value) => {
+    // const inputs = document.getElementsByClassName('chapter-checkbox')
+    // inputs[0].checked = false
+    // for(let i = 0; inputs.length < i; i++) {
+    //   inputs[i].checked = false
+    // }
+    // let isChecked = e.target.checked;
+    // console.log('isChecked', isChecked)
+    // console.log('value', value)
+  }
+
+  const renderChapter = () => {
+
+    const listItems = filters.pathology.map(item => {
+      return (
+        <li className="py-1 px-3">
+          <label className="flex items-center">
+            <input type="checkbox" className="form-checkbox chapter-checkbox" onChange={e => handleChange(e, item.Description)} />
+            <span className="text-sm font-medium ml-2">{item.Description}</span>
+          </label>
+        </li>
+      )
+    })
+
+    return (
+      <ul className="mb-4">
+        {listItems}
+      </ul>
+    )
+  }
+
+  const renderPathology = () => {
+
+    const listItems = filters.pathology.map(item => {
+      return (
+        <li className="py-1 px-3">
+          <label className="flex items-center">
+            <input type="checkbox" className="form-checkbox" onChange={e => handleChange(e, item.Description)} />
+            <span className="text-sm font-medium ml-2">{item.Description}</span>
+          </label>
+        </li>
+      )
+    })
+
+    return (
+      <ul className="mb-4">
+        {listItems}
+      </ul>
+    )
+  }
+  
 
   return (
     <div className="relative inline-flex">
@@ -54,52 +154,27 @@ function FilterButton() {
         leaveEnd="opacity-0"
       >
         <div ref={dropdown}>
-          <div className="text-xs font-semibold text-gray-400 uppercase pt-1.5 pb-2 px-4">Filters</div>
+          <div className="text-xs font-semibold text-gray-400 uppercase pt-1.5 pb-2 px-4">Filtros</div>
+          <h2 className="text-xs font-semibold text-gray-400 pt-1.5 pb-2 px-4">Todos</h2>
           <ul className="mb-4">
             <li className="py-1 px-3">
               <label className="flex items-center">
-                <input type="checkbox" className="form-checkbox" />
-                <span className="text-sm font-medium ml-2">Direct VS Indirect</span>
-              </label>
-            </li>
-            <li className="py-1 px-3">
-              <label className="flex items-center">
-                <input type="checkbox" className="form-checkbox" />
-                <span className="text-sm font-medium ml-2">Real Time Value</span>
-              </label>
-            </li>
-            <li className="py-1 px-3">
-              <label className="flex items-center">
-                <input type="checkbox" className="form-checkbox" />
-                <span className="text-sm font-medium ml-2">Top Channels</span>
-              </label>
-            </li>
-            <li className="py-1 px-3">
-              <label className="flex items-center">
-                <input type="checkbox" className="form-checkbox" />
-                <span className="text-sm font-medium ml-2">Sales VS Refunds</span>
-              </label>
-            </li>
-            <li className="py-1 px-3">
-              <label className="flex items-center">
-                <input type="checkbox" className="form-checkbox" />
-                <span className="text-sm font-medium ml-2">Last Order</span>
-              </label>
-            </li>
-            <li className="py-1 px-3">
-              <label className="flex items-center">
-                <input type="checkbox" className="form-checkbox" />
-                <span className="text-sm font-medium ml-2">Total Spent</span>
+                <input type="checkbox" className="form-checkbox" onChange={e => handleChange(e, 'all')} />
+                <span className="text-sm font-medium ml-2">Todos os alunos</span>
               </label>
             </li>
           </ul>
+          <h2 className="text-xs font-semibold text-gray-400 pt-1.5 pb-2 px-4">Capítulos</h2>
+          { renderChapter() }
+          <h2 className="text-xs font-semibold text-gray-400 pt-1.5 pb-2 px-4">Patologia</h2>
+          { renderPathology() }
           <div className="py-2 px-3 border-t border-gray-200 bg-gray-50">
             <ul className="flex items-center justify-between">
               <li>
-                <button className="btn-xs bg-white border-gray-200 hover:border-gray-300 text-gray-500 hover:text-gray-600">Clear</button>
+                <button className="btn-xs bg-white border-gray-200 hover:border-gray-300 text-gray-500 hover:text-gray-600">Limpar</button>
               </li>
               <li>
-                <button className="btn-xs bg-indigo-500 hover:bg-indigo-600 text-white" onClick={() => setDropdownOpen(false)} onBlur={() => setDropdownOpen(false)}>Apply</button>
+                <button className="btn-xs bg-indigo-500 hover:bg-indigo-600 text-white" onClick={() => setDropdownOpen(false)} onBlur={() => setDropdownOpen(false)}>Aplicar</button>
               </li>
             </ul>
           </div>

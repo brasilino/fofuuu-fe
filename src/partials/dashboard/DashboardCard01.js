@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import BarChart from '../../charts/BarChart01';
+import React, { useEffect, useState } from 'react'
+import BarChart from '../../charts/BarChart01'
+import { URL, profileId } from './DashboardConfig'
+import FilterButton from '../actions/FilterButton';
 
 // Import utilities
-import { tailwindConfig } from '../../utils/Utils';
+import { tailwindConfig } from '../../utils/Utils'
 
 import {
   ApolloClient,
@@ -19,15 +21,14 @@ function DashboardCard01() {
   useEffect(() => {
     async function fetchData() {
       const client = new ApolloClient({
-        uri: 'http://localhost:4000',
+        uri: URL,
         cache: new InMemoryCache()
       });
 
       const result = await client.query({
         query: gql`
           query {
-            getScoreByGameByStudent(profileId: "cd465e22-8384-4a88-a7e0-113c27b43f70") {
-              ProfileId
+            getScoreByGame(profileId: "${profileId}", chapter: "activities-alphabet") {
               ModuleId
               Score
             }
@@ -35,11 +36,11 @@ function DashboardCard01() {
         `
       })
 
-      const { data: { getScoreByGameByStudent } } = result
+      const { data: { getScoreByGame } } = result
       
-      if(getScoreByGameByStudent && getScoreByGameByStudent.length > 0) {
-        const score = getScoreByGameByStudent.map(item => item.Score)
-        const moduleId = getScoreByGameByStudent.map(item => item.ModuleId)
+      if(getScoreByGame && getScoreByGame.length > 0) {
+        const score = getScoreByGame.map(item => item.Score)
+        const moduleId = getScoreByGame.map(item => item.ModuleId)
 
         setChartData({
           labels: moduleId,
@@ -66,7 +67,14 @@ function DashboardCard01() {
   return ( 
     <div className="flex flex-col col-span-full sm:col-span-12 bg-white shadow-lg rounded-sm border border-gray-200">
       <header className="px-5 py-4 border-b border-gray-100">
-        <h2 className="font-semibold text-gray-800">Pontuação de jogo por Aluno</h2>
+        <div className="sm:flex sm:justify-between sm:items-center mb-8">
+          <div className="flex flex-wrap justify-center sm:justify-start mb-8 sm:mb-0 -space-x-3 -ml-px">
+            <h2 className="font-semibold text-gray-800">Pontuação de jogo por Aluno</h2>
+          </div>
+          <div className="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+            <FilterButton />
+          </div>
+        </div>
       </header>
       {/* Chart built with Chart.js 3 */}
       {/* Change the height attribute to adjust the chart height */}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BarChart from '../../charts/BarChart01';
+import { URL, profileId } from './DashboardConfig'
 
 // Import utilities
 import { tailwindConfig } from '../../utils/Utils';
@@ -20,15 +21,14 @@ function DashboardCard02() {
     async function fetchData() {
 
       const client = new ApolloClient({
-        uri: 'http://localhost:4000',
+        uri: URL,
         cache: new InMemoryCache()
       });
 
       const result = await client.query({
         query: gql`
           query {
-              getStudentPerformanceByGameByStudent(profileId: "cd465e22-8384-4a88-a7e0-113c27b43f70") {
-                  ProfileId
+              getStudentPerformanceByGame(profileId: "${profileId}", chapter: "activities-alphabet") {
                   ModuleId
                   TotalTime
               }
@@ -36,11 +36,11 @@ function DashboardCard02() {
         `
       })
 
-      const { data: { getStudentPerformanceByGameByStudent } } = result
+      const { data: { getStudentPerformanceByGame } } = result
       
-      if(getStudentPerformanceByGameByStudent && getStudentPerformanceByGameByStudent.length > 0) {
-        const totalTime = getStudentPerformanceByGameByStudent.map(item => item.TotalTime)
-        const moduleId = getStudentPerformanceByGameByStudent.map(item => item.ModuleId)
+      if(getStudentPerformanceByGame && getStudentPerformanceByGame.length > 0) {
+        const totalTime = getStudentPerformanceByGame.map(item => item.TotalTime)
+        const moduleId = getStudentPerformanceByGame.map(item => item.ModuleId)
 
         setChartData({
           labels: moduleId,
