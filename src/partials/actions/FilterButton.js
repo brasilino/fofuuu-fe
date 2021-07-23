@@ -97,7 +97,6 @@ function FilterButton() {
   }
 
   const renderPathology = () => {
-    let count = 1;
     const listItems = filters.pathology.map((item, index) => {
       return (
         <li className="py-1 px-3" key={index}>
