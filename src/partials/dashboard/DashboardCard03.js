@@ -41,8 +41,6 @@ function DashboardCard02() {
             const totalErrors = getErrorCountByGame.map(item => item.TotalErrors)
             const moduleId = getErrorCountByGame.map(item => item.ModuleId)
 
-            console.log('totalErrors', totalErrors)
-
             setChartData({
                 labels: moduleId,
                 datasets: [

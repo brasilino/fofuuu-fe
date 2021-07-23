@@ -76,24 +76,13 @@ function FilterButton() {
     return () => document.removeEventListener('keydown', keyHandler);
   });
 
-  const handleChange = (e, value) => {
-    // const inputs = document.getElementsByClassName('chapter-checkbox')
-    // inputs[0].checked = false
-    // for(let i = 0; inputs.length < i; i++) {
-    //   inputs[i].checked = false
-    // }
-    // let isChecked = e.target.checked;
-    // console.log('isChecked', isChecked)
-    // console.log('value', value)
-  }
-
   const renderChapter = () => {
 
-    const listItems = filters.pathology.map(item => {
+    const listItems = filters.pathology.map((item, index) => {
       return (
-        <li className="py-1 px-3">
+        <li className="py-1 px-3" key={index}>
           <label className="flex items-center">
-            <input type="checkbox" className="form-checkbox chapter-checkbox" onChange={e => handleChange(e, item.Description)} />
+            <input type="checkbox" className="form-checkbox chapter-checkbox" />
             <span className="text-sm font-medium ml-2">{item.Description}</span>
           </label>
         </li>
@@ -108,12 +97,12 @@ function FilterButton() {
   }
 
   const renderPathology = () => {
-
-    const listItems = filters.pathology.map(item => {
+    let count = 1;
+    const listItems = filters.pathology.map((item, index) => {
       return (
-        <li className="py-1 px-3">
+        <li className="py-1 px-3" key={index}>
           <label className="flex items-center">
-            <input type="checkbox" className="form-checkbox" onChange={e => handleChange(e, item.Description)} />
+            <input type="checkbox" className="form-checkbox" />
             <span className="text-sm font-medium ml-2">{item.Description}</span>
           </label>
         </li>
@@ -159,7 +148,7 @@ function FilterButton() {
           <ul className="mb-4">
             <li className="py-1 px-3">
               <label className="flex items-center">
-                <input type="checkbox" className="form-checkbox" onChange={e => handleChange(e, 'all')} />
+                <input type="checkbox" className="form-checkbox" />
                 <span className="text-sm font-medium ml-2">Todos os alunos</span>
               </label>
             </li>
