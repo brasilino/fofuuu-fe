@@ -16,52 +16,75 @@ import {
 function DashboardCard01() {
 
   const [value, setValue] = useState(false)
-  const [chartData, setChartData] = useState({});
+  const [chartData, setChartData] = useState({})
+  const filtersDefault = {
+    all: false,
+    chapter: 'activities-alphabet',
+    pathology: ''
+  }
+
+  const client = new ApolloClient({
+    uri: URL,
+    cache: new InMemoryCache()
+  });
+
+  const prepareParams = (filters) => {
+    if(filters && filters.pathology) return `chapter: "${filtersDefault.chapter}", pathology: "${filters.pathology}"` 
+    if(!filters || !filters.all) return `chapter: "${filtersDefault.chapter}", profileId: "${profileId}"` 
+    return `chapter: "${filtersDefault.chapter}"` 
+  }
+
+  const getQuery = async (filters) => {
+    const params = prepareParams(filters)
+    const result = await client.query({
+      query: gql`
+        query {
+          getScoreByGame(${params}) {
+            ModuleId
+            Score
+          }
+        }
+      `
+    })
+
+    const { data: { getScoreByGame } } = result
+    
+    if(getScoreByGame && getScoreByGame.length > 0) {
+      const score = getScoreByGame.map(item => item.Score)
+      const moduleId = getScoreByGame.map(item => item.ModuleId)
+
+      setChartData({
+        labels: moduleId,
+        datasets: [
+          // Light blue bars
+          {
+            label: 'Direct',
+            data: score,
+            backgroundColor: tailwindConfig().theme.colors.yellow[400],
+            hoverBackgroundColor: tailwindConfig().theme.colors.yellow[500],
+            barPercentage: 0.66,
+            categoryPercentage: 0.66,
+          },
+        ],
+      })  
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
-      const client = new ApolloClient({
-        uri: URL,
-        cache: new InMemoryCache()
-      });
 
-      const result = await client.query({
-        query: gql`
-          query {
-            getScoreByGame(profileId: "${profileId}", chapter: "activities-alphabet") {
-              ModuleId
-              Score
-            }
-          }
-        `
-      })
-
-      const { data: { getScoreByGame } } = result
-      
-      if(getScoreByGame && getScoreByGame.length > 0) {
-        const score = getScoreByGame.map(item => item.Score)
-        const moduleId = getScoreByGame.map(item => item.ModuleId)
-
-        setChartData({
-          labels: moduleId,
-          datasets: [
-            // Light blue bars
-            {
-              label: 'Direct',
-              data: score,
-              backgroundColor: tailwindConfig().theme.colors.yellow[400],
-              hoverBackgroundColor: tailwindConfig().theme.colors.yellow[500],
-              barPercentage: 0.66,
-              categoryPercentage: 0.66,
-            },
-          ],
-        })  
-      }
+      await getQuery()
 
       setValue(false)
     }
     fetchData();
+    // eslint-disable-next-line 
   }, [value]);
+
+  const setFilters = async (filters) => {
+    console.log('filters', filters)
+    await getQuery(filters)
+  }
 
 
   return ( 
@@ -72,7 +95,7 @@ function DashboardCard01() {
             <h2 className="font-semibold text-gray-800">Pontuação de jogo por Aluno</h2>
           </div>
           <div className="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
-            <FilterButton />
+            <FilterButton setFilters={setFilters} />
           </div>
         </div>
       </header>

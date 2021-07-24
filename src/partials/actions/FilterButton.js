@@ -1,12 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Transition from '../../utils/Transition.js';
 
-function FilterButton() {
+function FilterButton({
+  setFilters,
+}) {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [filtersDefault, setFiltersDefault] = useState({
+    all: false,
+    chapter: 'activities-alphabet',
+    pathology: ''
+  });
 
   const trigger = useRef(null);
   const dropdown = useRef(null);
+
   const filters = {
     chapter: [
       {
@@ -34,9 +42,6 @@ function FilterButton() {
       },
       {
         Description: 'Language Development Disorder'
-      },
-      {
-        Description: 'Apraxia'
       },
       {
         Description: 'Apraxia'
@@ -76,13 +81,35 @@ function FilterButton() {
     return () => document.removeEventListener('keydown', keyHandler);
   });
 
+  const handleChange = (e, value, type) => {
+    let valuePathology = e.target.checked
+    const inputs = document.getElementsByClassName(`${type}-checkbox`);
+    for(let i = 0, l = inputs.length; i < l; ++i) {
+      inputs[i].checked = false
+    }
+
+    if(type !== 'all') e.target.checked = true
+
+    if(type === 'pathology') {
+      filtersDefault.pathology = valuePathology ? value : ''
+      setFiltersDefault(filtersDefault)
+      e.target.checked = valuePathology
+    } else {
+      filtersDefault[type] = value;
+      setFiltersDefault(filtersDefault)
+    }
+
+    setFilters(filtersDefault)
+  }
+
   const renderChapter = () => {
 
-    const listItems = filters.pathology.map((item, index) => {
+    const listItems = filters.chapter.map((item, index) => {
+      const isChecked = item.Description === 'activities-alphabet' ? true : false
       return (
         <li className="py-1 px-3" key={index}>
           <label className="flex items-center">
-            <input type="checkbox" className="form-checkbox chapter-checkbox" />
+            <input type="checkbox" defaultChecked={isChecked} onChange={e => handleChange(e, item.Description, 'chapter')} className="form-checkbox chapter-checkbox" />
             <span className="text-sm font-medium ml-2">{item.Description}</span>
           </label>
         </li>
@@ -101,7 +128,7 @@ function FilterButton() {
       return (
         <li className="py-1 px-3" key={index}>
           <label className="flex items-center">
-            <input type="checkbox" className="form-checkbox" />
+            <input type="checkbox" onChange={e => handleChange(e, item.Description, 'pathology')} className="form-checkbox pathology-checkbox" />
             <span className="text-sm font-medium ml-2">{item.Description}</span>
           </label>
         </li>
@@ -147,7 +174,7 @@ function FilterButton() {
           <ul className="mb-4">
             <li className="py-1 px-3">
               <label className="flex items-center">
-                <input type="checkbox" className="form-checkbox" />
+                <input type="checkbox" onChange={e => handleChange(e, e.target.checked, 'all')} className="form-checkbox" />
                 <span className="text-sm font-medium ml-2">Todos os alunos</span>
               </label>
             </li>
