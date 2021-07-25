@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
 import WelcomeBanner from '../partials/dashboard/WelcomeBanner';
@@ -39,7 +38,6 @@ function Dashboard() {
               <DashboardCard03 />
 
             </div>
-
           </div>
         </main>
 

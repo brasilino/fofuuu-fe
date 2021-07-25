@@ -1,12 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Transition from '../../utils/Transition.js';
+import {
+  ApolloClient,
+  InMemoryCache,
+  gql
+} from "@apollo/client"
+import { URL } from '../dashboard/DashboardConfig'
 
 function FilterButton({
-  setFilters,
+  applyFilters,
 }) {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [filtersDefault, setFiltersDefault] = useState({
+  const [activeFilters, setActiveFilters] = useState({
     all: false,
     chapter: 'activities-alphabet',
     pathology: ''
@@ -15,51 +21,30 @@ function FilterButton({
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
-  const filters = {
+  const [filters, setFilters] = useState({
     chapter: [
-      {
-        Description: 'activities-alphabet'
-      },
-      {
-        Description: 'activities-shapes'
-      },
-      {
-        Description: 'activities-animals'
-      }
+      'activities-alphabet',
+      'activities-shapes',
+      'activities-animals'
     ],
     pathology: [
-      {
-        Description: 'Down Syndrome'
-      },
-      {
-        Description: 'Dislexia'
-      },
-      {
-        Description: 'Autism'
-      },
-      {
-        Description: 'Cerebral Palsy'
-      },
-      {
-        Description: 'Language Development Disorder'
-      },
-      {
-        Description: 'Apraxia'
-      },
-      {
-        Description: 'Speech Delay'
-      },
-      {
-        Description: 'Other'
-      },
-      {
-        Description: 'Cleft Lip and Palate'
-      },
-      {
-        Description: 'Hearing Disorder'
-      }
+      'Down Syndrome',
+      'Dislexia',
+      'Autism',
+      'Cerebral Palsy',
+      'Language Development Disorder',
+      'Apraxia',
+      'Speech Delay',
+      'Other',
+      'Cleft Lip and Palate',
+      'Hearing Disorder'
     ]
-  }
+  })
+
+  const client = new ApolloClient({
+    uri: URL,
+    cache: new InMemoryCache()
+  });
 
   // close on click outside
   useEffect(() => {
@@ -81,36 +66,92 @@ function FilterButton({
     return () => document.removeEventListener('keydown', keyHandler);
   });
 
+  useEffect(() => {
+    async function fetchData() {
+      const { chapter, pathology } = await getFilters()
+      filters.chapter = chapter
+      filters.pathology = pathology
+      setFilters(filters)
+    }
+    fetchData()
+  })
+
+  const getFilters = async () => {
+    const result = await client.query({
+      query: gql`
+        query {
+          getChapter {
+            Description
+          }
+          getPathology {
+            Description
+          }
+        }
+      `
+    })
+
+    const { data: { getChapter, getPathology } } = result
+
+    let filters = {
+      chapter: [],
+      pathology: []
+    }
+
+    if(getChapter && getChapter.length > 0) {
+      filters.chapter = getChapter.map(item => item.Description)
+      filters.pathology = getPathology.map(item => item.Description)
+    }
+
+    return filters
+  }
+
   const handleChange = (e, value, type) => {
     let valuePathology = e.target.checked
     const inputs = document.getElementsByClassName(`${type}-checkbox`);
-    for(let i = 0, l = inputs.length; i < l; ++i) {
-      inputs[i].checked = false
+    
+    if(type !== 'all') {
+      for(let i = 0, l = inputs.length; i < l; ++i) {
+        inputs[i].checked = false
+      }
+      e.target.checked = true
     }
-
-    if(type !== 'all') e.target.checked = true
 
     if(type === 'pathology') {
-      filtersDefault.pathology = valuePathology ? value : ''
-      setFiltersDefault(filtersDefault)
+      activeFilters.pathology = valuePathology ? value : ''
+      setActiveFilters(activeFilters)
       e.target.checked = valuePathology
     } else {
-      filtersDefault[type] = value;
-      setFiltersDefault(filtersDefault)
+      activeFilters[type] = value;
+      setActiveFilters(activeFilters)
     }
+  }
 
-    setFilters(filtersDefault)
+  const applyFiltersBtn = () => {
+    applyFilters(activeFilters)
+    setDropdownOpen(false)
+    console.log('applyFilters:', activeFilters)
+  }
+
+  const cleanFilters = () => {
+    const inputs = document.getElementsByClassName('form-checkbox');
+    for(let i = 0, l = inputs.length; i < l; ++i) {
+      inputs[i].checked = false
+      if(inputs[i].getAttribute('value-checkbox') === 'activities-alphabet') inputs[i].checked = true
+    }
+    activeFilters.all = false
+    activeFilters.chapter = 'activities-alphabet'
+    activeFilters.pathology = ''
+    setActiveFilters(activeFilters)
   }
 
   const renderChapter = () => {
-
-    const listItems = filters.chapter.map((item, index) => {
-      const isChecked = item.Description === 'activities-alphabet' ? true : false
+    const listItems = filters.chapter.map((chapter, index) => {
+      const isChecked = chapter === 'activities-alphabet' ? true : false
       return (
         <li className="py-1 px-3" key={index}>
           <label className="flex items-center">
-            <input type="checkbox" defaultChecked={isChecked} onChange={e => handleChange(e, item.Description, 'chapter')} className="form-checkbox chapter-checkbox" />
-            <span className="text-sm font-medium ml-2">{item.Description}</span>
+            <input type="checkbox" value-checkbox={chapter} defaultChecked={isChecked} onChange={e => handleChange(e, chapter, 'chapter')} className="form-checkbox chapter-checkbox" />
+            <span className="text-sm font-medium ml-2">{chapter}</span>
           </label>
         </li>
       )
@@ -124,12 +165,12 @@ function FilterButton({
   }
 
   const renderPathology = () => {
-    const listItems = filters.pathology.map((item, index) => {
+    const listItems = filters.pathology.map((pathology, index) => {
       return (
         <li className="py-1 px-3" key={index}>
           <label className="flex items-center">
-            <input type="checkbox" onChange={e => handleChange(e, item.Description, 'pathology')} className="form-checkbox pathology-checkbox" />
-            <span className="text-sm font-medium ml-2">{item.Description}</span>
+            <input type="checkbox" value-checkbox={pathology} onChange={e => handleChange(e, pathology, 'pathology')} className="form-checkbox pathology-checkbox" />
+            <span className="text-sm font-medium ml-2">{pathology}</span>
           </label>
         </li>
       )
@@ -174,22 +215,26 @@ function FilterButton({
           <ul className="mb-4">
             <li className="py-1 px-3">
               <label className="flex items-center">
-                <input type="checkbox" onChange={e => handleChange(e, e.target.checked, 'all')} className="form-checkbox" />
+                <input type="checkbox" value-checkbox="all" onChange={e => handleChange(e, e.target.checked, 'all')} className="form-checkbox all-checkbox" />
                 <span className="text-sm font-medium ml-2">Todos os alunos</span>
               </label>
             </li>
           </ul>
-          <h2 className="text-xs font-semibold text-gray-400 pt-1.5 pb-2 px-4">Capítulos</h2>
+          <h2 className="text-xs font-semibold text-gray-400 pt-1.5 pb-2 px-4">Capítulos <strong>*</strong></h2>
           { renderChapter() }
           <h2 className="text-xs font-semibold text-gray-400 pt-1.5 pb-2 px-4">Patologia</h2>
           { renderPathology() }
           <div className="py-2 px-3 border-t border-gray-200 bg-gray-50">
             <ul className="flex items-center justify-between">
               <li>
-                <button className="btn-xs bg-white border-gray-200 hover:border-gray-300 text-gray-500 hover:text-gray-600">Limpar</button>
+                <button 
+                className="btn-xs bg-white border-gray-200 hover:border-gray-300 text-gray-500 hover:text-gray-600"
+                onClick={() => cleanFilters()} onBlur={() => cleanFilters()}>Limpar</button>
               </li>
               <li>
-                <button className="btn-xs bg-indigo-500 hover:bg-indigo-600 text-white" onClick={() => setDropdownOpen(false)} onBlur={() => setDropdownOpen(false)}>Aplicar</button>
+                <button 
+                className="btn-xs bg-indigo-500 hover:bg-indigo-600 text-white" 
+                onClick={() => applyFiltersBtn()}>Aplicar</button>
               </li>
             </ul>
           </div>
