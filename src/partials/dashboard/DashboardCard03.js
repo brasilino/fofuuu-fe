@@ -14,7 +14,7 @@ import {
 } from "@apollo/client";
 
 
-function DashboardCard02() {
+function DashboardCard02({getFilters}) {
 
   const [value, setValue] = useState(false)
   const [chartData, setChartData] = useState({});
@@ -98,7 +98,7 @@ function DashboardCard02() {
             <h2 className="font-semibold text-gray-800">Total de erros do aluno por jogo</h2>
           </div>
           <div className="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
-            <FilterButton applyFilters={applyFilters} />
+            <FilterButton getFilters={getFilters} applyFilters={applyFilters} />
           </div>
       </header>
       {/* Chart built with Chart.js 3 */}

@@ -1,14 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Transition from '../../utils/Transition.js';
-import {
-  ApolloClient,
-  InMemoryCache,
-  gql
-} from "@apollo/client"
-import { URL } from '../dashboard/DashboardConfig'
+
 
 function FilterButton({
   applyFilters,
+  getFilters,
 }) {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -41,11 +37,6 @@ function FilterButton({
       'Hearing Disorder'
     ]
   })
-
-  const client = new ApolloClient({
-    uri: URL,
-    cache: new InMemoryCache()
-  });
 
   // close on click outside
   useEffect(() => {
@@ -80,35 +71,6 @@ function FilterButton({
     fetchData()
     // eslint-disable-next-line 
   }, [loadFilters])
-
-  const getFilters = async () => {
-    const result = await client.query({
-      query: gql`
-        query {
-          getChapter {
-            Description
-          }
-          getPathology {
-            Description
-          }
-        }
-      `
-    })
-
-    const { data: { getChapter, getPathology } } = result
-
-    let filters = {
-      chapter: [],
-      pathology: []
-    }
-
-    if(getChapter && getChapter.length > 0) {
-      filters.chapter = getChapter.map(item => item.Description)
-      filters.pathology = getPathology.map(item => item.Description)
-    }
-
-    return filters
-  }
 
   const handleChange = (e, value, type) => {
     let valuePathology = e.target.checked
