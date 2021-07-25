@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import BarChart from '../../charts/BarChart01'
 import { URL, profileId } from './DashboardConfig'
 import FilterButton from '../actions/FilterButton'
+import ReactLoading from 'react-loading'
 
 // Import utilities
 import { tailwindConfig } from '../../utils/Utils'
@@ -17,6 +18,7 @@ function DashboardCard02() {
 
   const [value, setValue] = useState(false)
   const [chartData, setChartData] = useState({})
+  const [reactLoading, setReactLoading] = useState(true)
   const filtersDefault = {
     all: false,
     chapter: 'activities-alphabet',
@@ -66,7 +68,8 @@ function DashboardCard02() {
             categoryPercentage: 0.66,
           },
         ],
-      })      
+      })
+      setReactLoading(false)  
     }
   }
 
@@ -82,12 +85,14 @@ function DashboardCard02() {
   }, [value]);
 
   const applyFilters = async (filters) => {
+    setChartData({})
+    setReactLoading(true)
     await getQuery(filters)
   }
 
 
   return ( 
-    <div className="flex flex-col col-span-full sm:col-span-12 bg-white shadow-lg rounded-sm border border-gray-200">
+    <div className="flex flex-col col-span-full sm:col-span-12 bg-white shadow-lg rounded-sm border border-gray-200 relative">
       <header className="px-5 py-4 border-b border-gray-100">
         <div className="flex flex-wrap justify-center sm:justify-start mb-8 sm:mb-0 -space-x-3 -ml-px">
             <h2 className="font-semibold text-gray-800">Desempenho do aluno por jogo</h2>
@@ -99,6 +104,13 @@ function DashboardCard02() {
       {/* Chart built with Chart.js 3 */}
       {/* Change the height attribute to adjust the chart height */}
       <BarChart data={chartData} width={595} height={248} />
+
+      <div className="center-element">
+        <ReactLoading 
+          type="bubbles"
+          color={tailwindConfig().theme.colors.blue[400]}
+          className={reactLoading ? '' : 'hide-element'} />
+      </div>
     </div>
   );
 
