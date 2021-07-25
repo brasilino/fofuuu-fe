@@ -12,6 +12,7 @@ function FilterButton({
 }) {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [loadFilters, setLoadFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState({
     all: false,
     chapter: 'activities-alphabet',
@@ -68,13 +69,17 @@ function FilterButton({
 
   useEffect(() => {
     async function fetchData() {
-      const { chapter, pathology } = await getFilters()
-      filters.chapter = chapter
-      filters.pathology = pathology
-      setFilters(filters)
+      if(!loadFilters) {
+        const { chapter, pathology } = await getFilters()
+        filters.chapter = chapter
+        filters.pathology = pathology
+        setFilters(filters)
+        setLoadFilters(true)
+      }
     }
     fetchData()
-  })
+    // eslint-disable-next-line 
+  }, [loadFilters])
 
   const getFilters = async () => {
     const result = await client.query({
@@ -150,7 +155,12 @@ function FilterButton({
       return (
         <li className="py-1 px-3" key={index}>
           <label className="flex items-center">
-            <input type="checkbox" value-checkbox={chapter} defaultChecked={isChecked} onChange={e => handleChange(e, chapter, 'chapter')} className="form-checkbox chapter-checkbox" />
+            <input 
+              type="checkbox" 
+              className="form-checkbox chapter-checkbox"
+              value-checkbox={chapter} 
+              defaultChecked={isChecked} 
+              onChange={e => handleChange(e, chapter, 'chapter')} />
             <span className="text-sm font-medium ml-2">{chapter}</span>
           </label>
         </li>
@@ -169,7 +179,11 @@ function FilterButton({
       return (
         <li className="py-1 px-3" key={index}>
           <label className="flex items-center">
-            <input type="checkbox" value-checkbox={pathology} onChange={e => handleChange(e, pathology, 'pathology')} className="form-checkbox pathology-checkbox" />
+            <input 
+              type="checkbox" 
+              className="form-checkbox pathology-checkbox"
+              value-checkbox={pathology} 
+              onChange={e => handleChange(e, pathology, 'pathology')} />
             <span className="text-sm font-medium ml-2">{pathology}</span>
           </label>
         </li>
@@ -215,7 +229,11 @@ function FilterButton({
           <ul className="mb-4">
             <li className="py-1 px-3">
               <label className="flex items-center">
-                <input type="checkbox" value-checkbox="all" onChange={e => handleChange(e, e.target.checked, 'all')} className="form-checkbox all-checkbox" />
+                <input 
+                  type="checkbox" 
+                  value-checkbox="all" 
+                  className="form-checkbox all-checkbox"
+                  onChange={e => handleChange(e, e.target.checked, 'all')} />
                 <span className="text-sm font-medium ml-2">Todos os alunos</span>
               </label>
             </li>
