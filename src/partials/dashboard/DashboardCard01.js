@@ -24,16 +24,16 @@ function DashboardCard01() {
     chapter: 'activities-alphabet',
     pathology: ''
   }
-
   const client = new ApolloClient({
     uri: URL,
     cache: new InMemoryCache()
   });
 
   const prepareParams = (filters) => {
-    if(filters && filters.pathology) return `chapter: "${filtersDefault.chapter}", pathology: "${filters.pathology}"` 
-    if(!filters || !filters.all) return `chapter: "${filtersDefault.chapter}", profileId: "${profileId}"` 
-    return `chapter: "${filtersDefault.chapter}"` 
+    if(!filters) filters = filtersDefault
+    if(filters.pathology) return `chapter: "${filters.chapter}", pathology: "${filters.pathology}"` 
+    if(!filters.all) return `chapter: "${filters.chapter}", profileId: "${profileId}"` 
+    return `chapter: "${filters.chapter}"` 
   }
 
   const getQuery = async (filters) => {
